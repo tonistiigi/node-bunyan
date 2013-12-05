@@ -403,9 +403,9 @@ function parseArgv(argv) {
     var condDefines = [];
     Object.keys(upperNameFromLevel).forEach(function (lvl) {
         condDefines.push(
-            format('Object.prototype.%s = %s;', upperNameFromLevel[lvl], lvl));
+            format('%s: %s', upperNameFromLevel[lvl], lvl));
     });
-    condDefines = condDefines.join('\n') + '\n';
+    condDefines = 'this.__proto__ = {' + condDefines.join(', ') + '};';
 
     var endOfOptions = false;
     while (args.length > 0) {
@@ -496,8 +496,7 @@ function parseArgv(argv) {
             case '--condition':
                 var condition = args.shift();
                 parsed.conditions = parsed.conditions || [];
-                // todo: put back condDefines
-                var code = 'return (' + condition + ')';
+                var code = condDefines + '\nreturn (' + condition + ')';
                 try {
                     var func = new Function(code);
                 } catch (compileErr) {
