@@ -278,7 +278,7 @@ function filterRecord(rec, opts)
 
     if (opts.conditions) {
         for (var i = 0; i < opts.conditions.length; i++) {
-            var pass = opts.conditions[i].runInNewContext(rec);
+            var pass = opts.conditions[i].call(rec);
             if (!pass)
                 return false;
         }
@@ -496,10 +496,10 @@ function parseArgv(argv) {
             case '--condition':
                 var condition = args.shift();
                 parsed.conditions = parsed.conditions || [];
-                var scriptName = 'bunyan-condition-'+parsed.conditions.length;
-                var code = condDefines + condition;
+                // todo: put back condDefines
+                var code = 'return (' + condition + ')';
                 try {
-                    var script = vm.createScript(code, scriptName);
+                    var func = new Function(code);
                 } catch (compileErr) {
                     throw new Error(format('illegal CONDITION code: %s\n'
                         + '  CONDITION script:\n'
@@ -511,7 +511,7 @@ function parseArgv(argv) {
 
                 // Ensure this is a reasonably safe CONDITION.
                 try {
-                    script.runInNewContext(minValidRecord);
+                    func.call(minValidRecord);
                 } catch (condErr) {
                     throw new Error(format(
                         /* JSSTYLED */
@@ -528,7 +528,7 @@ function parseArgv(argv) {
                         ));
                 }
 
-                parsed.conditions.push(script);
+                parsed.conditions.push(func);
                 break;
             default: // arguments
                 if (!endOfOptions && arg.length > 0 && arg[0] === '-') {
