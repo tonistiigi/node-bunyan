@@ -496,7 +496,8 @@ function parseArgv(argv) {
             case '--condition':
                 var condition = args.shift();
                 parsed.conditions = parsed.conditions || [];
-                var code = condDefines + '\nreturn (' + condition + ')';
+                var code = condDefines
+                    + '\nwith(this) { return (' + condition + ') }';
                 try {
                     var func = new Function(code);
                 } catch (compileErr) {

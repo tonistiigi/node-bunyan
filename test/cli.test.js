@@ -322,7 +322,7 @@ test('multiple --conditions', function (t) {
         '{"hi": "there"}\n'
     ].join('');
     exec(_('%s %s/corpus/all.log ' +
-                 '-c "if (level === 40) pid = 1; true" ' +
+                 '-c "level === WARN ? pid = 1 : true" ' +
                  '-c "pid === 1"', BUNYAN, __dirname),
              function (err, stdout, stderr) {
         t.ifError(err);
